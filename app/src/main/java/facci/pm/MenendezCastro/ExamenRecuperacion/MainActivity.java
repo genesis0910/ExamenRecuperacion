@@ -2,6 +2,7 @@ package facci.pm.MenendezCastro.ExamenRecuperacion;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -46,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
         get.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, consulta1.class);
+                intent.putExtra("cedula", cedula.getText().toString());
+                startActivity(intent);
 
             }
         });
@@ -63,16 +67,14 @@ public class MainActivity extends AppCompatActivity {
         JSONObject js = new JSONObject();
         try {
             js.put("cedula", cedula.getText().toString());
-            js.put("fecha","12022020");
-            js.put("hora", "12");
-            js.put("minuto", "02");
-            js.put("segundo", "03");
+            js.put("nombre",materia.getText().toString());
+            js.put("estado", estado.getText().toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
 
-        String url = "https://backend-posts.herokuapp.com/checkin/";
+        String url = "https://backend-posts.herokuapp.com/subject";
 
 
         JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url, js,
