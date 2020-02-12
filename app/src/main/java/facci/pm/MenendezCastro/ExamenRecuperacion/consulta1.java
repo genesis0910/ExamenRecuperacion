@@ -22,7 +22,7 @@ public class consulta1 extends AppCompatActivity {
         cedula = getIntent().getStringExtra("cedula");
 
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="http://www.google.com";
+        String url ="https://backend-posts.herokuapp.com/subject/"+cedula;
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
