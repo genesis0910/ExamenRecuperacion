@@ -8,11 +8,20 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
+import com.android.volley.ServerError;
 import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.HttpHeaderParser;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,35 +60,57 @@ public class MainActivity extends AppCompatActivity {
 
     public void RealizarPost() {
 
-        String url = "https://backend-posts.herokuapp.com/checkin";
+        JSONObject js = new JSONObject();
+        try {
+            js.put("cedula", cedula.getText().toString());
+            js.put("fecha","12022020");
+            js.put("hora", "12");
+            js.put("minuto", "02");
+            js.put("segundo", "03");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
-        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.i("response",response);
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        error.printStackTrace();
+
+        String url = "https://backend-posts.herokuapp.com/checkin/";
+
+
+        JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url, js,
+        new Response.Listener<JSONObject>() {
+
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.e("error", "Response_Code from Volley" + "\n" + response.toString() + " i am king");
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.e("Erro", "Error: " + error.getMessage());
+                NetworkResponse response = error.networkResponse;
+                if (error instanceof ServerError && response != null) {
+                    try {
+                        String res = new String(response.data,
+                                HttpHeaderParser.parseCharset(response.headers, "utf-8"));
+                        // Now you can use any deserializer to make sense of data
+                        Log.e("error", "onErrorResponse: of uploadUser" + res);
+                        //   JSONObject obj = new JSONObject(res);
+                    } catch (Exception e1) {
+                        // Couldn't properly decode data to string
+
                     }
                 }
-        ) {
+            }
+        }) {
             @Override
-            protected Map<String, String> getParams()
-            {
-                Map<String, String>  params = new HashMap<>();
-                // the POST parameters:
-                params.put("cedula:", cedula.getText().toString());
-                params.put("fecha:","12022020");
-                params.put("hora:", "12");
-                params.put("minuto:", "02");
-                params.put("segundo:", "03");
-                return params;
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json");
+                return headers;
             }
         };
+        Log.e("error", "uploadUser:  near volley new request ");
+        // Adding request to request queue
         Volley.newRequestQueue(this).add(postRequest);
     }
 }
